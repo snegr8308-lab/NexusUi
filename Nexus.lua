@@ -7,17 +7,116 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-local Colors = {
-    Background = Color3.fromRGB(18, 18, 22),
-    TopBar = Color3.fromRGB(24, 24, 30),
-    ButtonOff = Color3.fromRGB(30, 30, 38),
-    ButtonHover = Color3.fromRGB(40, 40, 48),
-    ButtonOn = Color3.fromRGB(114, 46, 209),
-    TextLight = Color3.fromRGB(240, 240, 240),
-    TextDark = Color3.fromRGB(150, 150, 150),
-    Stroke = Color3.fromRGB(45, 45, 55),
-    StrokeOn = Color3.fromRGB(156, 102, 255),
-    CloseHover = Color3.fromRGB(220, 50, 50)
+-- Все доступные темы
+local Themes = {
+    NightSky = {
+        Background = Color3.fromRGB(18, 18, 22),
+        TopBar = Color3.fromRGB(24, 24, 30),
+        ButtonOff = Color3.fromRGB(30, 30, 38),
+        ButtonHover = Color3.fromRGB(40, 40, 48),
+        ButtonOn = Color3.fromRGB(114, 46, 209),
+        TextLight = Color3.fromRGB(240, 240, 240),
+        TextDark = Color3.fromRGB(150, 150, 150),
+        Stroke = Color3.fromRGB(45, 45, 55),
+        StrokeOn = Color3.fromRGB(156, 102, 255),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Rose = {
+        Background = Color3.fromRGB(22, 18, 20),
+        TopBar = Color3.fromRGB(30, 22, 26),
+        ButtonOff = Color3.fromRGB(38, 28, 33),
+        ButtonHover = Color3.fromRGB(48, 35, 42),
+        ButtonOn = Color3.fromRGB(219, 68, 125),
+        TextLight = Color3.fromRGB(245, 240, 242),
+        TextDark = Color3.fromRGB(160, 140, 148),
+        Stroke = Color3.fromRGB(55, 42, 48),
+        StrokeOn = Color3.fromRGB(255, 105, 165),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Gold = {
+        Background = Color3.fromRGB(20, 20, 18),
+        TopBar = Color3.fromRGB(28, 28, 24),
+        ButtonOff = Color3.fromRGB(36, 36, 30),
+        ButtonHover = Color3.fromRGB(46, 46, 38),
+        ButtonOn = Color3.fromRGB(212, 160, 23),
+        TextLight = Color3.fromRGB(245, 245, 240),
+        TextDark = Color3.fromRGB(150, 150, 130),
+        Stroke = Color3.fromRGB(50, 50, 40),
+        StrokeOn = Color3.fromRGB(255, 204, 51),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Crimson = {
+        Background = Color3.fromRGB(22, 16, 16),
+        TopBar = Color3.fromRGB(30, 20, 20),
+        ButtonOff = Color3.fromRGB(38, 26, 26),
+        ButtonHover = Color3.fromRGB(48, 34, 34),
+        ButtonOn = Color3.fromRGB(204, 34, 34),
+        TextLight = Color3.fromRGB(245, 240, 240),
+        TextDark = Color3.fromRGB(160, 130, 130),
+        Stroke = Color3.fromRGB(55, 40, 40),
+        StrokeOn = Color3.fromRGB(255, 77, 77),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Light = {
+        Background = Color3.fromRGB(240, 240, 245),
+        TopBar = Color3.fromRGB(225, 225, 230),
+        ButtonOff = Color3.fromRGB(210, 210, 218),
+        ButtonHover = Color3.fromRGB(195, 195, 204),
+        ButtonOn = Color3.fromRGB(74, 119, 255),
+        TextLight = Color3.fromRGB(30, 30, 35),
+        TextDark = Color3.fromRGB(100, 100, 110),
+        Stroke = Color3.fromRGB(180, 180, 190),
+        StrokeOn = Color3.fromRGB(74, 119, 255),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Black = {
+        Background = Color3.fromRGB(10, 10, 10),
+        TopBar = Color3.fromRGB(16, 16, 16),
+        ButtonOff = Color3.fromRGB(22, 22, 22),
+        ButtonHover = Color3.fromRGB(32, 32, 32),
+        ButtonOn = Color3.fromRGB(80, 80, 80),
+        TextLight = Color3.fromRGB(230, 230, 230),
+        TextDark = Color3.fromRGB(120, 120, 120),
+        Stroke = Color3.fromRGB(40, 40, 40),
+        StrokeOn = Color3.fromRGB(150, 150, 150),
+        CloseHover = Color3.fromRGB(200, 40, 40)
+    },
+    Planty = {
+        Background = Color3.fromRGB(16, 22, 18),
+        TopBar = Color3.fromRGB(22, 30, 24),
+        ButtonOff = Color3.fromRGB(28, 38, 30),
+        ButtonHover = Color3.fromRGB(36, 48, 38),
+        ButtonOn = Color3.fromRGB(46, 160, 67),
+        TextLight = Color3.fromRGB(240, 245, 240),
+        TextDark = Color3.fromRGB(130, 150, 135),
+        Stroke = Color3.fromRGB(40, 55, 42),
+        StrokeOn = Color3.fromRGB(87, 212, 110),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    BlueSky = {
+        Background = Color3.fromRGB(16, 20, 26),
+        TopBar = Color3.fromRGB(22, 28, 38),
+        ButtonOff = Color3.fromRGB(28, 36, 48),
+        ButtonHover = Color3.fromRGB(38, 48, 64),
+        ButtonOn = Color3.fromRGB(33, 150, 243),
+        TextLight = Color3.fromRGB(240, 245, 250),
+        TextDark = Color3.fromRGB(130, 145, 165),
+        Stroke = Color3.fromRGB(40, 52, 70),
+        StrokeOn = Color3.fromRGB(64, 196, 255),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    },
+    Rainbow = {
+        Background = Color3.fromRGB(18, 18, 22),
+        TopBar = Color3.fromRGB(24, 24, 30),
+        ButtonOff = Color3.fromRGB(30, 30, 38),
+        ButtonHover = Color3.fromRGB(40, 40, 48),
+        ButtonOn = Color3.fromRGB(255, 50, 100),
+        TextLight = Color3.fromRGB(240, 240, 240),
+        TextDark = Color3.fromRGB(150, 150, 150),
+        Stroke = Color3.fromRGB(45, 45, 55),
+        StrokeOn = Color3.fromRGB(255, 200, 0),
+        CloseHover = Color3.fromRGB(220, 50, 50)
+    }
 }
 
 local function addCorner(parent, radius)
@@ -35,8 +134,10 @@ local function addStroke(parent, color, thickness)
     return stroke
 end
 
-function NexusLib:CreateWindow(titleText)
+function NexusLib:CreateWindow(titleText, themeName)
     titleText = titleText or "NEXUS FARM"
+    themeName = themeName or "NightSky"
+    local Colors = Themes[themeName] or Themes["NightSky"]
     
     if getgenv().NexusLoadedUI then
         pcall(function()
@@ -87,8 +188,8 @@ function NexusLib:CreateWindow(titleText)
 
     local TitleGradient = Instance.new("UIGradient")
     TitleGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(156, 102, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 229, 255))
+        ColorSequenceKeypoint.new(0, Colors.StrokeOn),
+        ColorSequenceKeypoint.new(1, Colors.ButtonOn)
     })
     TitleGradient.Parent = TitleLabel
 
@@ -292,6 +393,48 @@ function NexusLib:CreateWindow(titleText)
                 Label.Text = newText
             end
             return LabelObj
+        end
+
+        function TabObj:AddButton(text, callback)
+            callback = callback or function() end
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 38)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local Button = Instance.new("TextButton")
+            Button.Size = UDim2.new(1, 0, 1, 0)
+            Button.BackgroundColor3 = Colors.ButtonOff
+            Button.Text = text
+            Button.TextColor3 = Colors.TextLight
+            Button.TextSize = 13
+            Button.Font = Enum.Font.GothamBold
+            Button.AutoButtonColor = false
+            Button.Parent = Container
+            
+            addCorner(Button, 6)
+            local BtnStroke = addStroke(Button, Colors.Stroke)
+
+            local tweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+            Button.MouseEnter:Connect(function()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
+                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.StrokeOn}):Play()
+            end)
+            
+            Button.MouseLeave:Connect(function()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOff}):Play()
+                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.Stroke}):Play()
+            end)
+            
+            Button.MouseButton1Click:Connect(function()
+                local pressTween = TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Colors.ButtonOn})
+                pressTween:Play()
+                pressTween.Completed:Wait()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
+                
+                pcall(callback)
+            end)
         end
 
         function TabObj:AddProgressBar(text, min, max)
