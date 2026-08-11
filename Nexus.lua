@@ -38,6 +38,13 @@ end
 function NexusLib:CreateWindow(titleText)
     titleText = titleText or "NEXUS FARM"
     
+    -- Автоматическое удаление старого окна при повторном запуске
+    if getgenv().NexusLoadedUI then
+        pcall(function()
+            getgenv().NexusLoadedUI:Destroy()
+        end)
+    end
+
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "NexusLibraryUI"
     ScreenGui.ResetOnSpawn = false
@@ -46,6 +53,8 @@ function NexusLib:CreateWindow(titleText)
     if gethui then ScreenGui.Parent = gethui()
     elseif syn and syn.protect_gui then syn.protect_gui(ScreenGui); ScreenGui.Parent = game:GetService("CoreGui")
     else ScreenGui.Parent = PlayerGui end
+
+    getgenv().NexusLoadedUI = ScreenGui
 
     local currentSize = UDim2.new(0, 340, 0, 350)
 
@@ -190,6 +199,7 @@ function NexusLib:CreateWindow(titleText)
         closeTween:Play()
         closeTween.Completed:Wait()
         ScreenGui:Destroy()
+        getgenv().NexusLoadedUI = nil
     end)
 
     TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
@@ -261,6 +271,80 @@ function NexusLib:CreateWindow(titleText)
         end)
 
         local TabObj = {}
+
+        -- Добавление тегов / меток (текст)
+        function TabObj:AddLabel(text)
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 26)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, 0, 1, 0)
+            Label.BackgroundTransparency = 1
+            Label.Text = text
+            Label.TextColor3 = Colors.TextDark
+            Label.TextSize = 12
+            Label.Font = Enum.Font.GothamBold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Container
+
+            local LabelObj = {}
+            function LabelObj:Set(newText)
+                Label.Text = newText
+            end
+            return LabelObj
+        end
+
+        -- Добавление прогресс-бара (0-100%)
+        function TabObj:AddProgressBar(text, min, max)
+            min = min or 0
+            max = max or 100
+
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 46)
+            Container.BackgroundColor3 = Colors.ButtonOff
+            Container.Parent = Scroll
+            addCorner(Container, 6)
+            addStroke(Container, Colors.Stroke)
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, -16, 0, 20)
+            Label.Position = UDim2.new(0, 8, 0, 4)
+            Label.BackgroundTransparency = 1
+            Label.Text = text .. " (0%)"
+            Label.TextColor3 = Colors.TextLight
+            Label.TextSize = 12
+            Label.Font = Enum.Font.GothamBold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Container
+
+            local BarBg = Instance.new("Frame")
+            BarBg.Size = UDim2.new(1, -16, 0, 5)
+            BarBg.Position = UDim2.new(0, 8, 0, 30)
+            BarBg.BackgroundColor3 = Colors.Background
+            BarBg.BorderSizePixel = 0
+            BarBg.Parent = Container
+            addCorner(BarBg, 2)
+
+            local BarFill = Instance.new("Frame")
+            BarFill.Size = UDim2.new(0, 0, 1, 0)
+            BarFill.BackgroundColor3 = Colors.ButtonOn
+            BarFill.BorderSizePixel = 0
+            BarFill.Parent = BarBg
+            addCorner(BarFill, 2)
+
+            local BarObj = {}
+            function BarObj:Set(value)
+                value = math.clamp(value, min, max)
+                local percent = math.floor(((value - min) / (max - min)) * 100)
+                TweenService:Create(BarFill, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
+                }):Play()
+                Label.Text = text .. " (" .. percent .. "%)"
+            end
+            return BarObj
+        end
 
         function TabObj:AddToggle(text, callback)
             callback = callback or function() end
@@ -367,7 +451,6 @@ function NexusLib:CreateWindow(titleText)
                     local pos = math.clamp((input.Position.X - SliderBg.AbsolutePosition.X) / SliderBg.AbsoluteSize.X, 0, 1)
                     SliderFill.Size = UDim2.new(pos, 0, 1, 0)
                     local val = math.floor(min + (max - min) * pos)
-                    Label.Text = text .. ": " + val -- fixed string cat
                     Label.Text = text .. ": " .. val
                     pcall(callback, val)
                 end
@@ -395,28 +478,4 @@ function NexusLib:CreateWindow(titleText)
             TextBox.Parent = Container
 
             local Padding = Instance.new("UIPadding")
-            Padding.PaddingLeft = UDim.new(0, 12)
-            Padding.PaddingRight = UDim.new(0, 12)
-            Padding.Parent = TextBox
-
-            addCorner(TextBox, 6) 
-            local TxtStroke = addStroke(TextBox, Colors.Stroke)
-
-            TextBox.Focused:Connect(function()
-                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.StrokeOn}):Play()
-            end)
-            
-            TextBox.FocusLost:Connect(function(enterPressed)
-                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.Stroke}):Play()
-                pcall(callback, TextBox.Text, enterPressed)
-            end)
-        end
-
-        return TabObj
-    end
-
-    return Window
-end
-
-return NexusLib
-
+            Padding.Paddi
