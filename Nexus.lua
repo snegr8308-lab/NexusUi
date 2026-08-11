@@ -38,7 +38,6 @@ end
 function NexusLib:CreateWindow(titleText)
     titleText = titleText or "NEXUS FARM"
     
-    -- Автоматическое удаление старого окна при повторном запуске
     if getgenv().NexusLoadedUI then
         pcall(function()
             getgenv().NexusLoadedUI:Destroy()
@@ -272,7 +271,6 @@ function NexusLib:CreateWindow(titleText)
 
         local TabObj = {}
 
-        -- Добавление тегов / меток (текст)
         function TabObj:AddLabel(text)
             local Container = Instance.new("Frame")
             Container.Size = UDim2.new(0.92, 0, 0, 26)
@@ -296,7 +294,6 @@ function NexusLib:CreateWindow(titleText)
             return LabelObj
         end
 
-        -- Добавление прогресс-бара (0-100%)
         function TabObj:AddProgressBar(text, min, max)
             min = min or 0
             max = max or 100
@@ -345,8 +342,7 @@ function NexusLib:CreateWindow(titleText)
             end
             return BarObj
         end
-
-        function TabObj:AddToggle(text, callback)
+                function TabObj:AddToggle(text, callback)
             callback = callback or function() end
             local Container = Instance.new("Frame")
             Container.Size = UDim2.new(0.92, 0, 0, 38)
@@ -478,4 +474,27 @@ function NexusLib:CreateWindow(titleText)
             TextBox.Parent = Container
 
             local Padding = Instance.new("UIPadding")
-            Padding.Paddi
+            Padding.PaddingLeft = UDim.new(0, 12)
+            Padding.PaddingRight = UDim.new(0, 12)
+            Padding.Parent = TextBox
+
+            addCorner(TextBox, 6) 
+            local TxtStroke = addStroke(TextBox, Colors.Stroke)
+
+            TextBox.Focused:Connect(function()
+                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.StrokeOn}):Play()
+            end)
+            
+            TextBox.FocusLost:Connect(function(enterPressed)
+                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.Stroke}):Play()
+                pcall(callback, TextBox.Text, enterPressed)
+            end)
+        end
+
+        return TabObj
+    end
+
+    return Window
+end
+
+return NexusLib
