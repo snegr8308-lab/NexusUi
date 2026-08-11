@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
+-- Все доступные темы
 local Themes = {
     NightSky = {
         Background = Color3.fromRGB(18, 18, 22),
@@ -307,213 +308,6 @@ function NexusLib:CreateWindow(titleText, themeName)
     }):Play()
 
     local Window = {}
-    getgenv().NexusWindowRef = Window
-    getgenv().NexusColorsRef = Colors
-    getgenv().NexusContentContainerRef = ContentContainer
-    getgenv().NexusTabHeaderRef = TabHeader
-
-    return Window
-end
-
-getgenv().NexusLib = NexusLib
-local NexusLib = getgenv().NexusLib
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
-getgenv().NexusTabBuilders = getgenv().NexusTabBuilders or {}
-
-table.insert(getgenv().NexusTabBuilders, function(TabObj, Scroll, Colors, addCorner, addStroke, UserInputService, TweenService)
-    function TabObj:AddLabel(text)
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 26)
-        Container.BackgroundTransparency = 1
-        Container.Parent = Scroll
-
-        local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, 0, 1, 0)
-        Label.BackgroundTransparency = 1
-        Label.Text = text
-        Label.TextColor3 = Colors.TextDark
-        Label.TextSize = 12
-        Label.Font = Enum.Font.GothamBold
-        Label.TextXAlignment = Enum.TextXAlignment.Left
-        Label.Parent = Container
-
-        local LabelObj = {}
-        function LabelObj:Set(newText)
-            Label.Text = newText
-        end
-        return LabelObj
-    end
-
-    function TabObj:AddButton(text, callback)
-        callback = callback or function() end
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 38)
-        Container.BackgroundTransparency = 1
-        Container.Parent = Scroll
-
-        local Button = Instance.new("TextButton")
-        Button.Size = UDim2.new(1, 0, 1, 0)
-        Button.BackgroundColor3 = Colors.ButtonOff
-        Button.Text = text
-        Button.TextColor3 = Colors.TextLight
-        Button.TextSize = 13
-        Button.Font = Enum.Font.GothamBold
-        Button.AutoButtonColor = false
-        Button.Parent = Container
-        
-        addCorner(Button, 6)
-        local BtnStroke = addStroke(Button, Colors.Stroke)
-
-        local tweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-        Button.MouseEnter:Connect(function()
-            TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
-            TweenService:Create(BtnStroke, tweenFast, {Color = Colors.StrokeOn}):Play()
-        end)
-        
-        Button.MouseLeave:Connect(function()
-            TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOff}):Play()
-            TweenService:Create(BtnStroke, tweenFast, {Color = Colors.Stroke}):Play()
-        end)
-        
-        Button.MouseButton1Click:Connect(function()
-            local pressTween = TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Colors.ButtonOn})
-            pressTween:Play()
-            pressTween.Completed:Wait()
-            TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
-            
-            pcall(callback)
-        end)
-    end
-
-    function TabObj:AddProgressBar(text, min, max)
-        min = min or 0
-        max = max or 100
-
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 46)
-        Container.BackgroundColor3 = Colors.ButtonOff
-        Container.Parent = Scroll
-        addCorner(Container, 6)
-        addStroke(Container, Colors.Stroke)
-
-        local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -16, 0, 20)
-        Label.Position = UDim2.new(0, 8, 0, 4)
-        Label.BackgroundTransparency = 1
-        Label.Text = text .. " (0%)"
-        Label.TextColor3 = Colors.TextLight
-        Label.TextSize = 12
-        Label.Font = Enum.Font.GothamBold
-        Label.TextXAlignment = Enum.TextXAlignment.Left
-        Label.Parent = Container
-
-        local BarBg = Instance.new("Frame")
-        BarBg.Size = UDim2.new(1, -16, 0, 5)
-        BarBg.Position = UDim2.new(0, 8, 0, 30)
-        BarBg.BackgroundColor3 = Colors.Background
-        BarBg.BorderSizePixel = 0
-        BarBg.Parent = Container
-        addCorner(BarBg, 2)
-
-        local BarFill = Instance.new("Frame")
-        BarFill.Size = UDim2.new(0, 0, 1, 0)
-        BarFill.BackgroundColor3 = Colors.ButtonOn
-        BarFill.BorderSizePixel = 0
-        BarFill.Parent = BarBg
-        addCorner(BarFill, 2)
-
-        local BarObj = {}
-        function BarObj:Set(value)
-            value = math.clamp(value, min, max)
-            local percent = math.floor(((value - min) / (max - min)) * 100)
-            TweenService:Create(BarFill, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
-            }):Play()
-            Label.Text = text .. " (" .. percent .. "%)"
-        end
-        return BarObj
-    end
-    
-    function TabObj:AddToggle(text, callback)
-        callback = callback or function() end
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 38)
-        Container.BackgroundTransparency = 1
-        Container.Parent = Scroll
-
-        local Button = Instance.new("TextButton")
-        Button.Size = UDim2.new(1, 0, 1, 0)
-        Button.BackgroundColor3 = Colors.ButtonOff
-        Button.Text = text
-        Button.TextColor3 = Colors.TextDark
-        Button.TextSize = 13
-        Button.Font = Enum.Font.GothamBold
-        Button.AutoButtonColor = false
-        Button.Parent = Container
-        
-        addCorner(Button, 6)
-        local BtnStroke = addStroke(Button, Colors.Stroke)
-
-        local Indicator = Instance.new("Frame")
-        Indicator.Size = UDim2.new(0, 8, 0, 8)
-        Indicator.Position = UDim2.new(1, -16, 0.5, -4)
-        Indicator.BackgroundColor3 = Colors.TextDark
-        Indicator.Parent = Button
-        addCorner(Indicator, 8)
-
-        local enabled = false
-        local tweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-        Button.MouseEnter:Connect(function() if not enabled then TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play() end end)
-        Button.MouseLeave:Connect(function() if not enabled then TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOff}):Play() end end)
-        
-        Button.MouseButton1Click:Connect(function()
-            enabled = not enabled
-            if enabled then
-                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOn, TextColor3 = Colors.TextLight}):Play()
-                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.StrokeOn}):Play()
-                TweenService:Create(Indicator, tweenFast, {BackgroundColor3 = Color3.fromRGB(0, 255, 170)}):Play()
-            else
-                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover, TextColor3 = Colors.TextDark}):Play()
-                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.Stroke}):Play()
-                TweenService:Create(Indicator, tweenFast, {BackgroundColor3 = Colors.TextDark}):Play()
-            end
-            pcall(callback, enabled)
-        end)
-    end
-end)
-
-task.spawn(function()
-    local startTime = tick()
-    while not getgenv().NexusWindowRef and (tick() - startTime < 5) do
-        task.wait(0.05)
-    end
-    
-    local Window = getgenv().NexusWindowRef
-    local Colors = getgenv().NexusColorsRef
-    local ContentContainer = getgenv().NexusContentContainerRef
-    local TabHeader = getgenv().NexusTabHeaderRef
-
-    if not Window then return end
-
-    local function addCorner(parent, radius)
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, radius)
-        corner.Parent = parent
-        return corner
-    end
-
-    local function addStroke(parent, color, thickness)
-        local stroke = Instance.new("UIStroke")
-        stroke.Color = color
-        stroke.Thickness = thickness or 1
-        stroke.Parent = parent
-        return stroke
-    end
-
     local tabsCount = 0
     local tabButtonsList = {}
 
@@ -578,250 +372,272 @@ task.spawn(function()
 
         local TabObj = {}
 
-        if getgenv().NexusTabBuilders then
-            for _, builder in ipairs(getgenv().NexusTabBuilders) do
-                builder(TabObj, Scroll, Colors, addCorner, addStroke, UserInputService, TweenService)
+        function TabObj:AddLabel(text)
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 26)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, 0, 1, 0)
+            Label.BackgroundTransparency = 1
+            Label.Text = text
+            Label.TextColor3 = Colors.TextDark
+            Label.TextSize = 12
+            Label.Font = Enum.Font.GothamBold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Container
+
+            local LabelObj = {}
+            function LabelObj:Set(newText)
+                Label.Text = newText
             end
+            return LabelObj
+        end
+
+        function TabObj:AddButton(text, callback)
+            callback = callback or function() end
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 38)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local Button = Instance.new("TextButton")
+            Button.Size = UDim2.new(1, 0, 1, 0)
+            Button.BackgroundColor3 = Colors.ButtonOff
+            Button.Text = text
+            Button.TextColor3 = Colors.TextLight
+            Button.TextSize = 13
+            Button.Font = Enum.Font.GothamBold
+            Button.AutoButtonColor = false
+            Button.Parent = Container
+            
+            addCorner(Button, 6)
+            local BtnStroke = addStroke(Button, Colors.Stroke)
+
+            local tweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+            Button.MouseEnter:Connect(function()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
+                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.StrokeOn}):Play()
+            end)
+            
+            Button.MouseLeave:Connect(function()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOff}):Play()
+                TweenService:Create(BtnStroke, tweenFast, {Color = Colors.Stroke}):Play()
+            end)
+            
+            Button.MouseButton1Click:Connect(function()
+                local pressTween = TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Colors.ButtonOn})
+                pressTween:Play()
+                pressTween.Completed:Wait()
+                TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play()
+                
+                pcall(callback)
+            end)
+        end
+
+        function TabObj:AddProgressBar(text, min, max)
+            min = min or 0
+            max = max or 100
+
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 46)
+            Container.BackgroundColor3 = Colors.ButtonOff
+            Container.Parent = Scroll
+            addCorner(Container, 6)
+            addStroke(Container, Colors.Stroke)
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, -16, 0, 20)
+            Label.Position = UDim2.new(0, 8, 0, 4)
+            Label.BackgroundTransparency = 1
+            Label.Text = text .. " (0%)"
+            Label.TextColor3 = Colors.TextLight
+            Label.TextSize = 12
+            Label.Font = Enum.Font.GothamBold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Container
+
+            local BarBg = Instance.new("Frame")
+            BarBg.Size = UDim2.new(1, -16, 0, 5)
+            BarBg.Position = UDim2.new(0, 8, 0, 30)
+            BarBg.BackgroundColor3 = Colors.Background
+            BarBg.BorderSizePixel = 0
+            BarBg.Parent = Container
+            addCorner(BarBg, 2)
+
+            local BarFill = Instance.new("Frame")
+            BarFill.Size = UDim2.new(0, 0, 1, 0)
+            BarFill.BackgroundColor3 = Colors.ButtonOn
+            BarFill.BorderSizePixel = 0
+            BarFill.Parent = BarBg
+            addCorner(BarFill, 2)
+
+            local BarObj = {}
+            function BarObj:Set(value)
+                value = math.clamp(value, min, max)
+                local percent = math.floor(((value - min) / (max - min)) * 100)
+                TweenService:Create(BarFill, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
+                }):Play()
+                Label.Text = text .. " (" .. percent .. "%)"
+            end
+            return BarObj
+        end
+                function TabObj:AddToggle(text, callback)
+            callback = callback or function() end
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 38)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local Button = Instance.new("TextButton")
+            Button.Size = UDim2.new(1, 0, 1, 0)
+            Button.BackgroundColor3 = Colors.ButtonOff
+            Button.Text = text
+            Button.TextColor3 = Colors.TextDark
+            Button.TextSize = 13
+            Button.Font = Enum.Font.GothamBold
+            Button.AutoButtonColor = false
+            Button.Parent = Container
+            
+            addCorner(Button, 6)
+            local BtnStroke = addStroke(Button, Colors.Stroke)
+
+            local Indicator = Instance.new("Frame")
+            Indicator.Size = UDim2.new(0, 8, 0, 8)
+            Indicator.Position = UDim2.new(1, -16, 0.5, -4)
+            Indicator.BackgroundColor3 = Colors.TextDark
+            Indicator.Parent = Button
+            addCorner(Indicator, 8)
+
+            local enabled = false
+            local tweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+            Button.MouseEnter:Connect(function() if not enabled then TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover}):Play() end end)
+            Button.MouseLeave:Connect(function() if not enabled then TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOff}):Play() end end)
+            
+            Button.MouseButton1Click:Connect(function()
+                enabled = not enabled
+                if enabled then
+                    TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonOn, TextColor3 = Colors.TextLight}):Play()
+                    TweenService:Create(BtnStroke, tweenFast, {Color = Colors.StrokeOn}):Play()
+                    TweenService:Create(Indicator, tweenFast, {BackgroundColor3 = Color3.fromRGB(0, 255, 170)}):Play()
+                else
+                    TweenService:Create(Button, tweenFast, {BackgroundColor3 = Colors.ButtonHover, TextColor3 = Colors.TextDark}):Play()
+                    TweenService:Create(BtnStroke, tweenFast, {Color = Colors.Stroke}):Play()
+                    TweenService:Create(Indicator, tweenFast, {BackgroundColor3 = Colors.TextDark}):Play()
+                end
+                pcall(callback, enabled)
+            end)
+        end
+
+        function TabObj:AddSlider(text, min, max, default, callback)
+            min = min or 0
+            max = max or 100
+            default = default or 50
+            callback = callback or function() end
+
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 46)
+            Container.BackgroundColor3 = Colors.ButtonOff
+            Container.Parent = Scroll
+            addCorner(Container, 6)
+            addStroke(Container, Colors.Stroke)
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, -16, 0, 20)
+            Label.Position = UDim2.new(0, 8, 0, 4)
+            Label.BackgroundTransparency = 1
+            Label.Text = text .. ": " .. default
+            Label.TextColor3 = Colors.TextLight
+            Label.TextSize = 12
+            Label.Font = Enum.Font.GothamBold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Container
+
+            local SliderBg = Instance.new("Frame")
+            SliderBg.Size = UDim2.new(1, -16, 0, 5)
+            SliderBg.Position = UDim2.new(0, 8, 0, 30)
+            SliderBg.BackgroundColor3 = Colors.Background
+            SliderBg.BorderSizePixel = 0
+            SliderBg.Parent = Container
+            addCorner(SliderBg, 2)
+
+            local SliderFill = Instance.new("Frame")
+            SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+            SliderFill.BackgroundColor3 = Colors.ButtonOn
+            SliderFill.BorderSizePixel = 0
+            SliderFill.Parent = SliderBg
+            addCorner(SliderFill, 2)
+
+            local draggingSlider = false
+            SliderBg.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSlider = true
+                end
+            end)
+
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSlider = false
+                end
+            end)
+
+            UserInputService.InputChanged:Connect(function(input)
+                if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    local pos = math.clamp((input.Position.X - SliderBg.AbsolutePosition.X) / SliderBg.AbsoluteSize.X, 0, 1)
+                    SliderFill.Size = UDim2.new(pos, 0, 1, 0)
+                    local val = math.floor(min + (max - min) * pos)
+                    Label.Text = text .. ": " .. val
+                    pcall(callback, val)
+                end
+            end)
+        end
+
+        function TabObj:AddTextBox(placeholderText, callback)
+            callback = callback or function() end
+            local Container = Instance.new("Frame")
+            Container.Size = UDim2.new(0.92, 0, 0, 38)
+            Container.BackgroundTransparency = 1
+            Container.Parent = Scroll
+
+            local TextBox = Instance.new("TextBox")
+            TextBox.Size = UDim2.new(1, 0, 1, 0)
+            TextBox.BackgroundColor3 = Colors.ButtonOff
+            TextBox.Text = ""
+            TextBox.PlaceholderText = placeholderText or "Enter text here"
+            TextBox.PlaceholderColor3 = Colors.TextDark
+            TextBox.TextColor3 = Colors.TextLight
+            TextBox.TextSize = 13
+            TextBox.Font = Enum.Font.GothamBold
+            TextBox.ClearTextOnFocus = false
+            TextBox.TextXAlignment = Enum.TextXAlignment.Left
+            TextBox.Parent = Container
+
+            local Padding = Instance.new("UIPadding")
+            Padding.PaddingLeft = UDim.new(0, 12)
+            Padding.PaddingRight = UDim.new(0, 12)
+            Padding.Parent = TextBox
+
+            addCorner(TextBox, 6) 
+            local TxtStroke = addStroke(TextBox, Colors.Stroke)
+
+            TextBox.Focused:Connect(function()
+                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.StrokeOn}):Play()
+            end)
+            
+            TextBox.FocusLost:Connect(function(enterPressed)
+                TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.Stroke}):Play()
+                pcall(callback, TextBox.Text, enterPressed)
+            end)
         end
 
         return TabObj
     end
-end)
+
+    return Window
+end
 
 return NexusLib
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-
-getgenv().NexusTabBuilders = getgenv().NexusTabBuilders or {}
-
-table.insert(getgenv().NexusTabBuilders, function(TabObj, Scroll, Colors, addCorner, addStroke, UserInputService, TweenService)
-    function TabObj:AddSlider(text, min, max, default, callback)
-        min = min or 0
-        max = max or 100
-        default = default or 50
-        callback = callback or function() end
-
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 46)
-        Container.BackgroundColor3 = Colors.ButtonOff
-        Container.Parent = Scroll
-        addCorner(Container, 6)
-        addStroke(Container, Colors.Stroke)
-
-        local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -16, 0, 20)
-        Label.Position = UDim2.new(0, 8, 0, 4)
-        Label.BackgroundTransparency = 1
-        Label.Text = text .. ": " .. default
-        Label.TextColor3 = Colors.TextLight
-        Label.TextSize = 12
-        Label.Font = Enum.Font.GothamBold
-        Label.TextXAlignment = Enum.TextXAlignment.Left
-        Label.Parent = Container
-
-        local SliderBg = Instance.new("Frame")
-        SliderBg.Size = UDim2.new(1, -16, 0, 5)
-        SliderBg.Position = UDim2.new(0, 8, 0, 30)
-        SliderBg.BackgroundColor3 = Colors.Background
-        SliderBg.BorderSizePixel = 0
-        SliderBg.Parent = Container
-        addCorner(SliderBg, 2)
-
-        local SliderFill = Instance.new("Frame")
-        SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-        SliderFill.BackgroundColor3 = Colors.ButtonOn
-        SliderFill.BorderSizePixel = 0
-        SliderFill.Parent = SliderBg
-        addCorner(SliderFill, 2)
-
-        local draggingSlider = false
-        SliderBg.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSlider = true
-            end
-        end)
-
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSlider = false
-            end
-        end)
-
-        UserInputService.InputChanged:Connect(function(input)
-            if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                local pos = math.clamp((input.Position.X - SliderBg.AbsolutePosition.X) / SliderBg.AbsoluteSize.X, 0, 1)
-                SliderFill.Size = UDim2.new(pos, 0, 1, 0)
-                local val = math.floor(min + (max - min) * pos)
-                Label.Text = text .. ": " .. val
-                pcall(callback, val)
-            end
-        end)
-    end
-
-    function TabObj:AddTextBox(placeholderText, callback)
-        callback = callback or function() end
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 38)
-        Container.BackgroundTransparency = 1
-        Container.Parent = Scroll
-
-        local TextBox = Instance.new("TextBox")
-        TextBox.Size = UDim2.new(1, 0, 1, 0)
-        TextBox.BackgroundColor3 = Colors.ButtonOff
-        TextBox.Text = ""
-        TextBox.PlaceholderText = placeholderText or "Enter text here"
-        TextBox.PlaceholderColor3 = Colors.TextDark
-        TextBox.TextColor3 = Colors.TextLight
-        TextBox.TextSize = 13
-        TextBox.Font = Enum.Font.GothamBold
-        TextBox.ClearTextOnFocus = false
-        TextBox.TextXAlignment = Enum.TextXAlignment.Left
-        TextBox.Parent = Container
-
-        local Padding = Instance.new("UIPadding")
-        Padding.PaddingLeft = UDim.new(0, 12)
-        Padding.PaddingRight = UDim.new(0, 12)
-        Padding.Parent = TextBox
-
-        addCorner(TextBox, 6) 
-        local TxtStroke = addStroke(TextBox, Colors.Stroke)
-
-        TextBox.Focused:Connect(function()
-            TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.StrokeOn}):Play()
-        end)
-        
-        TextBox.FocusLost:Connect(function(enterPressed)
-            TweenService:Create(TxtStroke, TweenInfo.new(0.2), {Color = Colors.Stroke}):Play()
-            pcall(callback, TextBox.Text, enterPressed)
-        end)
-    end
-
-    function TabObj:AddDropdown(text, options, callback)
-        options = options or {}
-        callback = callback or function() end
-        local selectedOption = options[1] or "Выберите..."
-        local isOpen = false
-
-        local Container = Instance.new("Frame")
-        Container.Size = UDim2.new(0.92, 0, 0, 38)
-        Container.BackgroundTransparency = 1
-        Container.ClipsDescendants = false
-        Container.Parent = Scroll
-        Container.ZIndex = 5
-
-        local MainButton = Instance.new("TextButton")
-        MainButton.Size = UDim2.new(1, 0, 0, 38)
-        MainButton.BackgroundColor3 = Colors.ButtonOff
-        MainButton.Text = "  " .. text .. ": " .. tostring(selectedOption)
-        MainButton.TextColor3 = Colors.TextLight
-        MainButton.TextSize = 13
-        MainButton.Font = Enum.Font.GothamBold
-        MainButton.TextXAlignment = Enum.TextXAlignment.Left
-        MainButton.AutoButtonColor = false
-        MainButton.ZIndex = 5
-        MainButton.Parent = Container
-        addCorner(MainButton, 6)
-        local BtnStroke = addStroke(MainButton, Colors.Stroke)
-
-        local Arrow = Instance.new("TextLabel")
-        Arrow.Size = UDim2.new(0, 20, 1, 0)
-        Arrow.Position = UDim2.new(1, -25, 0, 0)
-        Arrow.BackgroundTransparency = 1
-        Arrow.Text = "▼"
-        Arrow.TextColor3 = Colors.TextDark
-        Arrow.TextSize = 12
-        Arrow.Font = Enum.Font.GothamBold
-        Arrow.ZIndex = 6
-        Arrow.Parent = MainButton
-
-        local DropListFrame = Instance.new("ScrollingFrame")
-        DropListFrame.Size = UDim2.new(1, 0, 0, 0)
-        DropListFrame.Position = UDim2.new(0, 0, 0, 42)
-        DropListFrame.BackgroundColor3 = Colors.Background
-        DropListFrame.BorderSizePixel = 0
-        DropListFrame.Visible = false
-        DropListFrame.ZIndex = 10
-        DropListFrame.ScrollBarThickness = 3
-        DropListFrame.ScrollBarImageColor3 = Colors.StrokeOn
-        DropListFrame.Parent = Container
-        addCorner(DropListFrame, 6)
-        addStroke(DropListFrame, Colors.Stroke)
-
-        local ListLayout = Instance.new("UIListLayout")
-        ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        ListLayout.Parent = DropListFrame
-
-        local function updateList(newOptions)
-            options = newOptions or {}
-            for _, child in ipairs(DropListFrame:GetChildren()) do
-                if child:IsA("TextButton") then
-                    child:Destroy()
-                end
-            end
-
-            local totalHeight = 0
-            for _, opt in ipairs(options) do
-                local OptBtn = Instance.new("TextButton")
-                OptBtn.Size = UDim2.new(1, 0, 0, 30)
-                OptBtn.BackgroundColor3 = Colors.ButtonOff
-                OptBtn.Text = "  " .. tostring(opt)
-                OptBtn.TextColor3 = Colors.TextDark
-                OptBtn.TextSize = 12
-                OptBtn.Font = Enum.Font.Gotham
-                OptBtn.TextXAlignment = Enum.TextXAlignment.Left
-                OptBtn.AutoButtonColor = false
-                OptBtn.ZIndex = 11
-                OptBtn.Parent = DropListFrame
-
-                OptBtn.MouseEnter:Connect(function()
-                    TweenService:Create(OptBtn, TweenInfo.new(0.15), {BackgroundColor3 = Colors.ButtonHover, TextColor3 = Colors.TextLight}):Play()
-                end)
-                OptBtn.MouseLeave:Connect(function()
-                    TweenService:Create(OptBtn, TweenInfo.new(0.15), {BackgroundColor3 = Colors.ButtonOff, TextColor3 = Colors.TextDark}):Play()
-                end)
-
-                OptBtn.MouseButton1Click:Connect(function()
-                    selectedOption = opt
-                    MainButton.Text = "  " .. text .. ": " .. tostring(selectedOption)
-                    isOpen = false
-                    TweenService:Create(Container, TweenInfo.new(0.2), {Size = UDim2.new(0.92, 0, 0, 38)}):Play()
-                    TweenService:Create(DropListFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                    Arrow.Text = "▼"
-                    task.wait(0.2)
-                    DropListFrame.Visible = false
-                    pcall(callback, selectedOption)
-                end)
-
-                totalHeight = totalHeight + 30
-            end
-
-            DropListFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-        end
-
-        updateList(options)
-
-        MainButton.MouseButton1Click:Connect(function()
-            isOpen = not isOpen
-            if isOpen then
-                DropListFrame.Visible = true
-                local targetHeight = math.clamp(#options * 30, 0, 120)
-                TweenService:Create(Container, TweenInfo.new(0.2), {Size = UDim2.new(0.92, 0, 0, 38 + targetHeight + 6)}):Play()
-                TweenService:Create(DropListFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
-                Arrow.Text = "▲"
-            else
-                TweenService:Create(Container, TweenInfo.new(0.2), {Size = UDim2.new(0.92, 0, 0, 38)}):Play()
-                TweenService:Create(DropListFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                Arrow.Text = "▼"
-                task.wait(0.2)
-                DropListFrame.Visible = false
-            end
-        end)
-
-        local DropObj = {}
-        function DropObj:Refresh(newOptions)
-            updateList(newOptions)
-        end
-        return DropObj
-    end
-end)
-
